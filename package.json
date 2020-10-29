@@ -1,0 +1,10 @@
+{
+  "name": "telegraf-broadcast",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "bull": "^3.18.1",
+    "telegraf": "^3.38.0"
+  }
+}
