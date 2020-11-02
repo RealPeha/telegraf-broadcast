@@ -1,10 +1,35 @@
 {
   "name": "telegraf-broadcast",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Library for broadcast message to all users for telegraf.js",
+  "author": "Stas Kardash real.peha@gmail.com",
+  "main": "src/index.js",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RealPeha/telegraf-broadcast"
+  },
+  "bugs": {
+    "url": "https://github.com/RealPeha/telegraf-broadcast/issues"
+  },
+  "homepage": "https://github.com/RealPeha/telegraf-broadcast#readme",
+  "engines": {
+    "node": ">=10"
+  },
+  "files": [
+    "src/*.js"
+  ],
   "dependencies": {
-    "bull": "^3.18.1",
-    "telegraf": "^3.38.0"
-  }
+    "bull": "^3.18.1"
+  },
+  "keywords": [
+    "telegram bot api",
+    "telegram",
+    "bot",
+    "telegraf",
+    "telegraf bot",
+    "telegraf reply",
+    "telegraf broadcast",
+    "telegraf send all"
+  ]
 }
