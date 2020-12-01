@@ -1,6 +1,6 @@
 {
   "name": "telegraf-broadcast",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Library for broadcast message to all users for telegraf.js",
   "author": "Stas Kardash real.peha@gmail.com",
   "main": "src/index.js",
