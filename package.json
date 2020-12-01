@@ -20,7 +20,7 @@
     "src/*.js"
   ],
   "dependencies": {
-    "bull": "^3.18.1"
+    "bull": "^3.20.0"
   },
   "keywords": [
     "telegram bot api",

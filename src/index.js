@@ -1,57 +1,92 @@
 const Queue = require('bull')
 
-const sendMessage = async (job, telegram, extra) => {
-    const { id, message } = job.data
+class Broadcaster {
+    constructor(bot, bullQueueOptions) {
+        this.queue = new Queue('broadcast', bullQueueOptions)
+        this.queue.process((job, done) => {
+            const { chatId, fromChatId, messageId, messageText, extra } = job.data
 
-    try {
-      await telegram.sendMessage(id, message, extra)
-    } catch (err) {
-        const { code } = err
+            if (messageId) {
+                return bot.telegram.callApi('copyMessage', {
+                    chat_id: chatId,
+                    from_chat_id: fromChatId || chatId,
+                    message_id: messageId,
+                    ...extra,
+                })
+                    .then(() => done())
+                    .catch(done)
+            }
 
-        if (code === 403) {
-            // blocked
+            return bot.telegram.sendMessage(chatId, messageText, extra)
+                .then(() => done())
+                .catch(done)
+        })
+    }
+
+    broadcast(chatIds, message, extra) {
+        let jobData = message
+
+        if (typeof message === 'string') {
+            jobData = {
+                messageText: message,
+                extra,
+            }
+        } else if (typeof message === 'number') {
+            jobData = {
+                messageId: message,
+                extra,
+            }
         }
 
-        if (!code || code === 429 || code >= 500) {
-            throw err
+        chatIds.forEach(chatId => this.queue.add({ chatId, ...jobData }))
+    }
+
+    reset() {
+        const queue = this.queue
+
+        return Promise.all([
+            queue.empty(),
+            queue.clean(0, 'delayed'),
+            queue.clean(0, 'wait'),
+            queue.clean(0, 'active'),
+            queue.clean(0, 'completed'),
+            queue.clean(0, 'failed'),
+        ])
+    }
+
+    terminate() {
+        const queue = this.queue
+
+        return Promise.all([
+            queue.empty(),
+            queue.clean(0, 'wait'),
+            queue.clean(0, 'active'),
+        ])
+    }
+
+    pause() {
+        return this.queue.pause()
+    }
+
+    resume() {
+        return this.queue.resume()
+    }
+
+    failed() {
+        return this.queue.getFailed()
+    }
+
+    async status() {
+        const queue = this.queue
+
+        return {
+            failedCount: await queue.getFailedCount(),
+            completedCount: await queue.getCompletedCount(),
+            activeCount: await queue.getActiveCount(),
+            delayedCount: await queue.getDelayedCount(),
+            waitingCount: await queue.getWaitingCount(),
         }
     }
 }
 
-const broadcastFactory = (telegram) => (userIds, message, extra) => {
-    const queue = new Queue('messages')
-
-    queue.process((job, done) => {
-        return sendMessage(job, telegram, extra)
-            .then(done)
-            .catch(done)
-    })
-
-    userIds.forEach(id => queue.add({ id, message }))
-
-    const pause = () => {
-        queue.pause()
-    }
-
-    const resume = () => {
-        queue.resume()
-    }
-
-    return {
-        pause,
-        resume,
-    }
-}
-
-const broadcast = (telegram, userIds, message, extra = {}) => broadcastFactory(telegram)(userIds, message, extra)
-
-const useBroadcast = () => (ctx, next) => {
-    ctx.broadcast = (userIds, message, extra = {}) => broadcastFactory(ctx.telegram)(userIds, message, extra)
-
-    return next(ctx)
-}
-
-module.exports = {
-    broadcast,
-    useBroadcast,
-}
+module.exports = Broadcaster
