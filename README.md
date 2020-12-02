@@ -17,13 +17,12 @@ const Telegraf = require('telegraf')
 const Broadcaster = require('telegraf-broadcast')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
-
 const broadcaster = new Broadcaster(bot)
 
 const userIds = [154674234, 154674235, 154674236, 154674237, 154674239];
 
 bot.start((ctx) => {
-    broadcaster.broadcast(userIds, 'Hello everyone')
+    broadcaster.sendMessage(userIds, 'Hello everyone')
 })
 
 bot.launch()
