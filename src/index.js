@@ -56,6 +56,10 @@ class Broadcaster {
             throw new Error('chatIds must be an Array of chat/user ids')
         }
 
+        if (typeof message === 'number') {
+            throw new Error('message must be a string or object if you want to pass messageId')
+        }
+
         let jobData = message
 
         if (typeof message === 'string') {
@@ -125,15 +129,15 @@ class Broadcaster {
     }
 
     onCompleted(callback) {
-        this.queue.on('drained', callback)
+        return this.queue.on('drained', callback)
     }
 
     onProcessed(callback) {
-        this.queue.on('completed', callback)
+        return this.queue.on('completed', callback)
     }
 
     onFailed(callback) {
-        this.queue.on('failed', callback)
+        return this.queue.on('failed', callback)
     }
 
     async failed(formatJob = false) {

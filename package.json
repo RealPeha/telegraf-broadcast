@@ -4,6 +4,7 @@
   "description": "Library for broadcast message to all users for telegraf.js",
   "author": "Stas Kardash real.peha@gmail.com",
   "main": "src/index.js",
+  "types": "src/index.d.ts",
   "license": "MIT",
   "repository": {
     "type": "git",
