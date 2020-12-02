@@ -1,4 +1,4 @@
-import { Job, EventCallback, Queue, QueueOptions } from 'bull'
+import { Job, EventCallback, CompletedEventCallback, FailedEventCallback, Queue, QueueOptions } from 'bull'
 import { ExtraReplyMessage } from 'telegraf/typings/telegram-types'
 import { Telegraf, Telegram } from 'telegraf/typings/index'
 
@@ -53,10 +53,12 @@ declare class Broadcaster {
     progress(): number
 
     onCompleted(callback: EventCallback): Queue<any>
+    onProcessed(callback: CompletedEventCallback): Queue<any>
+    onFailed(callback: FailedEventCallback): Queue<any>
 
-    failed(formatJob?: boolean): Job<any> | FormatterFailedJob<any>
+    failed(formatJob?: boolean): Job<any> | Promise<FormatterFailedJob<any>>
 
-    status(): BroadcasterStatus
+    status(): Promise<BroadcasterStatus>
 
     static formatFailedJob(job: Job<any>): FormatterFailedJob<any>
 }
