@@ -7,9 +7,9 @@ const broadcaster = new Broadcaster(telegram)
 
 const userIds = [155054210, 669662547, 1]
 
-broadcaster.broadcast(userIds, '<b>Hello everyone</b>', { parse_mode: 'HTML' })
+broadcaster.sendText(userIds, '<b>Hello everyone</b>', { parse_mode: 'HTML' })
 
-broadcaster.onCompleted(() => console.log('Broadcast is completed'))
+broadcaster.onCompleted(() => console.log('Broadcasting is completed'))
 broadcaster.onProcessed(() => console.log(`Progress: ${broadcaster.progress()}%`))
 broadcaster.onFailed(job => {
     const failedJob = Broadcaster.formatFailedJob(job)

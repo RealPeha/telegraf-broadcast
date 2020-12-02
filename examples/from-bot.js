@@ -13,10 +13,7 @@ bot.command('/broadcast', ctx => {
     if (replyMessage) {
         const userIds = [155054210, 669662547]
 
-        broadcaster.broadcast(userIds, {
-            fromChatId: ctx.chat.id,
-            messageId: replyMessage.message_id,
-        })
+        broadcaster.sendMessage(userIds, ctx.chat.id, replyMessage.message_id)
     }
 })
 

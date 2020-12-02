@@ -35,30 +35,35 @@ interface BroadcasterStatus {
 declare class Broadcaster {
     private usersProcessed: number
     private usersAmount: number
-
+    
     public queue: Queue<any>
 
     constructor(bot: Telegraf<any> | Telegram, bullQueueOptions?: QueueOptions)
 
-    broadcast(chatIds: number[], message: string | MessageId | MessageText, extra?: ExtraReplyMessage): void
+    private run(chatIds: number[], jobData: MessageText | MessageId): Broadcaster
 
-    reset(): Promise<[void, Job<any>[], Job<any>[], Job<any>[], Job<any>[], Job<any>[]]>
+    public sendText(chatIds: number[], messageText: string, extra?: ExtraReplyMessage): Broadcaster
+    public sendMessage(chatIds: number[], fromChatId: number, messageId: number, extra?: ExtraReplyMessage): Broadcaster
+
+    public reset(): Promise<[void, Job<any>[], Job<any>[], Job<any>[], Job<any>[], Job<any>[]]>
     
-    terminate(): Promise<[void, Job<any>[], Job<any>[]]>
+    public terminate(): Promise<[void, Job<any>[], Job<any>[]]>
     
-    pause(): Promise<void>
+    public pause(): Promise<void>
 
-    resume(): Promise<void>
+    public resume(): Promise<void>
 
-    progress(): number
+    public progress(): number
 
-    onCompleted(callback: EventCallback): Queue<any>
-    onProcessed(callback: CompletedEventCallback): Queue<any>
-    onFailed(callback: FailedEventCallback): Queue<any>
+    public onCompleted(callback: EventCallback): Queue<any>
 
-    failed(formatJob?: boolean): Job<any> | Promise<FormatterFailedJob<any>>
+    public onProcessed(callback: CompletedEventCallback): Queue<any>
 
-    status(): Promise<BroadcasterStatus>
+    public onFailed(callback: FailedEventCallback): Queue<any>
+
+    public failed(formatJob?: boolean): Job<any> | Promise<FormatterFailedJob<any>>
+
+    public status(): Promise<BroadcasterStatus>
 
     static formatFailedJob(job: Job<any>): FormatterFailedJob<any>
 }

@@ -51,67 +51,74 @@ class Broadcaster {
         })
     }
 
-    broadcast(chatIds, message, extra) {
-        if (!Array.isArray(chatIds)) {
-            throw new Error('chatIds must be an Array of chat/user ids')
-        }
-
-        if (typeof message === 'number') {
-            throw new Error('message must be a string or object if you want to pass messageId')
-        }
-
-        let jobData = message
-
-        if (typeof message === 'string') {
-            jobData = {
-                messageText: message,
-                extra,
-            }
-        }
-
-        if (jobData.messageId) {
-            if (jobData.messageText) {
-                throw new Error('Specify either messageId or messageText')
-            }
-
-            if (!jobData.fromChatId) {
-                throw new Error('You must explicitly specify fromChatId')
-            }
-        }
-
-        if (jobData.chatId) {
-            throw new Error('Pass the chat id only in the chatIds array')
-        }
-
+    run(chatIds, jobData) {
         this.usersProcessed = 0
         this.usersAmount = chatIds.length
 
         chatIds.forEach(chatId => {
             this.queue.add({ chatId, ...jobData })
         })
+
+        return this
+    }
+
+    sendText(chatIds, messageText, extra) {
+        if (!Array.isArray(chatIds)) {
+            throw new Error('chatIds must be an Array of chat/user ids')
+        }
+
+        if (typeof messageText !== 'string') {
+            throw new Error('messageText must be a string')
+        }
+
+        return this.run(chatIds, {
+            messageText,
+            extra,
+        })
+    }
+
+    sendMessage(chatIds, fromChatId, messageId, extra) {
+        if (!Array.isArray(chatIds)) {
+            throw new Error('chatIds must be an Array of chat/user ids')
+        }
+
+        if (typeof fromChatId !== 'number' || typeof messageId !== 'number') {
+            throw new Error('fromChatId and messageId must be a number')
+        }
+
+        return this.run(chatIds, {
+            fromChatId,
+            messageId,
+            extra,
+        })
     }
 
     reset() {
         const queue = this.queue
 
-        return Promise.all([
-            queue.empty(),
-            queue.clean(0, 'delayed'),
-            queue.clean(0, 'wait'),
-            queue.clean(0, 'active'),
-            queue.clean(0, 'completed'),
-            queue.clean(0, 'failed'),
-        ])
+        this.usersProcessed = 0
+        this.usersAmount = 0
+
+        return this.pause()
+            .then(() => Promise.all([
+                queue.empty(),
+                queue.clean(0, 'delayed'),
+                queue.clean(0, 'wait'),
+                queue.clean(0, 'active'),
+                queue.clean(0, 'completed'),
+                queue.clean(0, 'failed'),
+            ]))
     }
 
     terminate() {
         const queue = this.queue
 
-        return Promise.all([
-            queue.empty(),
-            queue.clean(0, 'wait'),
-            queue.clean(0, 'active'),
-        ])
+        return this.pause()
+            .then(() => Promise.all([
+                queue.empty(),
+                queue.clean(0, 'wait'),
+                queue.clean(0, 'active'),
+            ]))
     }
 
     pause() {
