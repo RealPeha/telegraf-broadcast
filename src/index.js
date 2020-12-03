@@ -14,13 +14,15 @@ const getTelegramApi = (bot) => {
 }
 
 class Broadcaster {
+    static queueName = 'tg-broadcast'
+
     constructor(bot, bullQueueOptions) {
         const telegramApi = getTelegramApi(bot)
         
         this.usersProcessed = 0
         this.usersAmount = 0
 
-        this.queue = new Queue('broadcast', bullQueueOptions)
+        this.queue = new Queue(Broadcaster.queueName, bullQueueOptions)
         this.queue.process((job, done) => {
             const { chatId, fromChatId, messageId, messageText, extra } = job.data
 

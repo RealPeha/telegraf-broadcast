@@ -38,6 +38,8 @@ declare class Broadcaster {
     
     public queue: Queue<any>
 
+    static queueName: string
+
     constructor(bot: Telegraf<any> | Telegram, bullQueueOptions?: QueueOptions)
 
     private run(chatIds: number[], jobData: MessageText | MessageId): Broadcaster
@@ -61,7 +63,7 @@ declare class Broadcaster {
 
     public onFailed(callback: FailedEventCallback): Queue<any>
 
-    public failed(formatJob?: boolean): Job<any> | Promise<FormatterFailedJob<any>>
+    public failed(formatJob?: boolean): Promise<Job<any>> | Promise<FormatterFailedJob<any>>
 
     public status(): Promise<BroadcasterStatus>
 
