@@ -1,5 +1,6 @@
-const Arena = require('bull-arena')
+
 const Bull = require('bull')
+const Arena = require('bull-arena')
 const Broadcaster = require('telegraf-broadcast')
  
 Arena({
