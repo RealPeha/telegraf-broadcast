@@ -33,6 +33,12 @@ bot.command('/terminate', () => {
     return broadcaster.terminate()
 })
 
+bot.command('/failed', async () => {
+    const failed = await broadcaster.failed(true)
+
+    console.log(failed)
+})
+
 bot.command('/status', async ctx => {
     const { failedCount, completedCount, waitingCount } = await broadcaster.status()
 

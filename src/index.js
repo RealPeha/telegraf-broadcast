@@ -16,41 +16,51 @@ const getTelegramApi = (bot) => {
 class Broadcaster {
     static queueName = 'tg-broadcast'
 
-    constructor(bot, bullQueueOptions) {
-        const telegramApi = getTelegramApi(bot)
-        
+    constructor(bot, options) {
+        const defaultOptions = {
+            processes: 1,
+            queueName: Broadcaster.queueName,
+            bullJobOptions: {},
+            bullQueueOptions: {},
+        }
+
+        this.telegramApi = getTelegramApi(bot)
+        this.options = { ...defaultOptions, ...options }
+
         this.usersProcessed = 0
         this.usersAmount = 0
 
-        this.queue = new Queue(Broadcaster.queueName, bullQueueOptions)
-        this.queue.process((job, done) => {
-            const { chatId, fromChatId, messageId, messageText, extra } = job.data
+        this.queue = new Queue(this.options.queueName, this.options.bullQueueOptions)
+        this.queue.process(this.options.processes, this.processor)
+    }
 
-            const doneSuccess = (res) => {
-                this.usersProcessed += 1
-                done(null, res)
-            }
-
-            const doneError = (err) => {
-                this.usersProcessed += 1
-                done(err)
-            }
-
-            if (messageId) {
-                telegramApi.callApi('copyMessage', {
-                    chat_id: chatId,
-                    from_chat_id: fromChatId,
-                    message_id: messageId,
-                    ...extra,
-                })
-                    .then(doneSuccess)
-                    .catch(doneError)
-            } else {
-                telegramApi.sendMessage(chatId, messageText, extra)
-                    .then(doneSuccess)
-                    .catch(doneError)
-            }
-        })
+    processor = (job, done) => {
+        const { chatId, fromChatId, messageId, messageText, extra } = job.data
+    
+        const doneSuccess = (res) => {
+            this.usersProcessed += 1
+            done(null, res)
+        }
+    
+        const doneError = (err) => {
+            this.usersProcessed += 1
+            done(err)
+        }
+    
+        if (messageId) {
+            this.telegramApi.callApi('copyMessage', {
+                chat_id: chatId,
+                from_chat_id: fromChatId,
+                message_id: messageId,
+                ...extra,
+            })
+                .then(doneSuccess)
+                .catch(doneError)
+        } else {
+            this.telegramApi.sendMessage(chatId, messageText, extra)
+                .then(doneSuccess)
+                .catch(doneError)
+        }
     }
 
     run(chatIds, jobData) {
@@ -58,7 +68,7 @@ class Broadcaster {
         this.usersAmount = chatIds.length
 
         chatIds.forEach(chatId => {
-            this.queue.add({ chatId, ...jobData })
+            this.queue.add({ chatId, ...jobData }, this.options.bullJobOptions)
         })
 
         return this
@@ -178,6 +188,10 @@ class Broadcaster {
         }
 
         const [code, status, message] = failedReason.split(':').map(str => str.trim())
+
+        if (!parseInt(code)) {
+            return { data, failedReason }
+        }
 
         return {
             data,

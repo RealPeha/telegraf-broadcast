@@ -1,4 +1,4 @@
-import { Job, EventCallback, CompletedEventCallback, FailedEventCallback, Queue, QueueOptions } from 'bull'
+import { Job, EventCallback, CompletedEventCallback, FailedEventCallback, Queue, QueueOptions, JobOptions, ProcessCallbackFunction } from 'bull'
 import { ExtraReplyMessage } from 'telegraf/typings/telegram-types'
 import { Telegraf, Telegram } from 'telegraf/typings/index'
 
@@ -32,15 +32,25 @@ interface BroadcasterStatus {
     waitingCount: number,
 }
 
+interface BroadcasterOptions {
+    processes?: number,
+    bullJobOptions?: JobOptions,
+    bullQueueOptions?: QueueOptions,
+    queueName?: string,
+}
+
 declare class Broadcaster {
     private usersProcessed: number
     private usersAmount: number
+    private telegramApi: Telegraf<any> | Telegram
+    private processor: ProcessCallbackFunction
     
     public queue: Queue<any>
+    public options: BroadcasterOptions
 
     static queueName: string
 
-    constructor(bot: Telegraf<any> | Telegram, bullQueueOptions?: QueueOptions)
+    constructor(bot: Telegraf<any> | Telegram, options: BroadcasterOptions)
 
     private run(chatIds: number[], jobData: MessageText | MessageId): Broadcaster
 
