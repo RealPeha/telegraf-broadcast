@@ -22,7 +22,7 @@ const broadcaster = new Broadcaster(bot)
 const userIds = [154674234, 154674235, 154674236, 154674237, 154674239];
 
 bot.start((ctx) => {
-    broadcaster.sendMessage(userIds, 'Hello everyone')
+    broadcaster.sendText(userIds, 'Hello everyone')
 })
 
 bot.launch()
