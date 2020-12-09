@@ -13,19 +13,50 @@ const getTelegramApi = (bot) => {
     throw new Error('bot must be instance of Telegraf or Telegram')
 }
 
+const apiMethodArguments = {
+    copyMessage: ({ fromChatId, messageId, extra }) => [
+        fromChatId,
+        messageId,
+        extra,
+    ],
+    sendMessage: ({ messageText, extra }) => [messageText, extra],
+    sendAudio: ({ audio, extra }) => [audio, extra],
+    sendChatAction: ({ action }) => [action],
+    sendDocument: ({ document, extra }) => [document, extra],
+    sendGame: ({ gameShortName, extra }) => [gameShortName, extra],
+    sendLocation: ({ latitude, longitude, extra }) => [latitude, longitude, extra],
+    sendPhoto: ({ photo, extra }) => [photo, extra],
+    sendMediaGroup: ({ media, extra }) => [media, extra],
+    sendPoll: ({ question, options, extra }) => [question, options, extra],
+    sendQuiz: ({ question, options, extra }) => [question, options, extra],
+    sendAnimation: ({ animation, extra }) => [animation, extra],
+    sendSticker: ({ sticker, extra }) => [sticker, extra],
+    sendVideo: ({ video, extra }) => [video, extra],
+    sendVideoNote: ({ videoNote, extra }) => [videoNote, extra],
+    sendVoice: ({ voice, extra }) => [voice, extra],
+    sendDice: ({ extra }) => [extra],
+}
+
+const getApiMethodArguments = (apiMethod, jobData) => {
+    if (!apiMethodArguments[apiMethod]) {
+        throw new Error(`apiMethod ${apiMethod} not found`)
+    }
+
+    return apiMethodArguments[apiMethod](jobData)
+}
+
 class Broadcaster {
     static queueName = 'tg-broadcast'
 
     constructor(bot, options) {
-        const defaultOptions = {
+        this.telegramApi = getTelegramApi(bot)
+        this.options = {
             processes: 1,
             queueName: Broadcaster.queueName,
             bullJobOptions: {},
             bullQueueOptions: {},
+            ...options,
         }
-
-        this.telegramApi = getTelegramApi(bot)
-        this.options = { ...defaultOptions, ...options }
 
         this.usersProcessed = 0
         this.usersAmount = 0
@@ -35,7 +66,7 @@ class Broadcaster {
     }
 
     processor = (job, done) => {
-        const { chatId, fromChatId, messageId, messageText, extra } = job.data
+        const { apiMethod, chatId } = job.data
     
         const doneSuccess = (res) => {
             this.usersProcessed += 1
@@ -46,9 +77,13 @@ class Broadcaster {
             this.usersProcessed += 1
             done(err)
         }
+
+        const callApiArguments = getApiMethodArguments(apiMethod, job.data)
     
-        if (messageId) {
-            this.telegramApi.callApi('copyMessage', {
+        if (apiMethod === 'copyMessage') {
+            const [fromChatId, messageId, extra] = callApiArguments
+
+            this.telegramApi.callApi(apiMethod, {
                 chat_id: chatId,
                 from_chat_id: fromChatId,
                 message_id: messageId,
@@ -57,13 +92,17 @@ class Broadcaster {
                 .then(doneSuccess)
                 .catch(doneError)
         } else {
-            this.telegramApi.sendMessage(chatId, messageText, extra)
+            this.telegramApi[apiMethod](chatId, ...callApiArguments)
                 .then(doneSuccess)
                 .catch(doneError)
         }
     }
 
-    run(chatIds, jobData) {
+    broadcast(chatIds, jobData) {
+        if (!Array.isArray(chatIds)) {
+            throw new Error('chatIds must be an Array of chat/user ids')
+        }
+
         this.usersProcessed = 0
         this.usersAmount = chatIds.length
 
@@ -74,33 +113,140 @@ class Broadcaster {
         return this
     }
 
+    sendMessage(chatIds, fromChatId, messageId, extra) {
+        return this.broadcast(chatIds, {
+            apiMethod: 'copyMessage',
+            fromChatId,
+            messageId,
+            extra,
+        })
+    }
+
     sendText(chatIds, messageText, extra) {
-        if (!Array.isArray(chatIds)) {
-            throw new Error('chatIds must be an Array of chat/user ids')
-        }
-
-        if (typeof messageText !== 'string') {
-            throw new Error('messageText must be a string')
-        }
-
-        return this.run(chatIds, {
+        return this.broadcast(chatIds, {
+            apiMethod: 'sendMessage',
             messageText,
             extra,
         })
     }
 
-    sendMessage(chatIds, fromChatId, messageId, extra) {
-        if (!Array.isArray(chatIds)) {
-            throw new Error('chatIds must be an Array of chat/user ids')
-        }
+    sendAudio(chatIds, audio, extra) {
+        return this.broadcast(chatIds, {
+            apiMethod: 'sendAudio',
+            audio,
+            extra,
+        })
+    }
 
-        if (typeof fromChatId !== 'number' || typeof messageId !== 'number') {
-            throw new Error('fromChatId and messageId must be a number')
-        }
+    sendChatAction(chatIds, action) {
+        return this.broadcast(chatIds, {
+            apiMethod: 'sendChatAction',
+            action
+        })
+    }
 
-        return this.run(chatIds, {
-            fromChatId,
-            messageId,
+    sendDocument(chatIds, document, extra) {
+        return this.broadcast(chatIds, {
+            apiMethod: 'sendDocument',
+            document,
+            extra,
+        })
+    }
+
+    sendGame(chatIds, gameShortName, extra) {
+        return this.broadcast(chatIds, {
+            apiMethod: 'sendGame',
+            gameShortName,
+            extra,
+        })
+    }
+
+    sendLocation(chatIds, latitude, longitude, extra) {
+        return this.broadcast(chatIds, {
+            apiMethod: 'sendLocation',
+            latitude,
+            longitude,
+            extra,
+        })
+    }
+
+    sendPhoto(chatIds, photo, extra) {
+        return this.broadcast(chatIds, {
+            apiMethod: 'sendPhoto',
+            photo,
+            extra,
+        })
+    }
+
+    sendMediaGroup(chatIds, media, extra) {
+        return this.broadcast(chatIds, {
+            apiMethod: 'sendMediaGroup',
+            media,
+            extra,
+        })
+    }
+    
+    sendPoll(chatIds, question, options, extra) {
+        return this.broadcast(chatIds, {
+            apiMethod: 'sendPoll',
+            question,
+            options,
+            extra,
+        })
+    }
+
+    sendQuiz(chatIds, question, options, extra) {
+        return this.broadcast(chatIds, {
+            apiMethod: 'sendQuiz',
+            question,
+            options,
+            extra,
+        })
+    }
+
+    sendAnimation(chatIds, animation, extra) {
+        return this.broadcast(chatIds, {
+            apiMethod: 'sendAnimation',
+            animation,
+            extra,
+        })
+    }
+
+    sendSticker(chatIds, sticker, extra) {
+        return this.broadcast(chatIds, {
+            apiMethod: 'sendSticker',
+            sticker,
+            extra,
+        })
+    }
+
+    sendVideo(chatIds, video, extra) {
+        return this.broadcast(chatIds, {
+            apiMethod: 'sendVideo',
+            video,
+            extra,
+        })
+    }
+
+    sendVideoNote(chatIds, videoNote, extra) {
+        return this.broadcast(chatIds, {
+            apiMethod: 'sendVideoNote',
+            videoNote,
+            extra,
+        })
+    }
+
+    sendVoice(chatIds, voice, extra) {
+        return this.broadcast(chatIds, {
+            apiMethod: 'sendVoice',
+            voice,
+            extra,
+        })
+    }
+
+    sendDice(chatIds, extra) {
+        return this.broadcast(chatIds, {
+            apiMethod: 'sendDice',
             extra,
         })
     }
@@ -171,13 +317,15 @@ class Broadcaster {
     async status() {
         const queue = this.queue
 
-        return {
-            failedCount: await queue.getFailedCount(),
-            completedCount: await queue.getCompletedCount(),
-            activeCount: await queue.getActiveCount(),
-            delayedCount: await queue.getDelayedCount(),
-            waitingCount: await queue.getWaitingCount(),
-        }
+        const [failedCount, completedCount, activeCount, delayedCount, waitingCount] = await Promise.all([
+            queue.getFailedCount(),
+            queue.getCompletedCount(),
+            queue.getActiveCount(),
+            queue.getDelayedCount(),
+            queue.getWaitingCount(),
+        ])
+
+        return { failedCount, completedCount, activeCount, delayedCount, waitingCount }
     }
 
     static formatFailedJob(job) {

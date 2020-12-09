@@ -1,5 +1,5 @@
 import { Job, EventCallback, CompletedEventCallback, FailedEventCallback, Queue, QueueOptions, JobOptions, ProcessCallbackFunction } from 'bull'
-import { ExtraReplyMessage } from 'telegraf/typings/telegram-types'
+import * as tt from 'telegraf/typings/telegram-types'
 import { Telegraf, Telegram } from 'telegraf/typings/index'
 
 export = Broadcaster
@@ -52,10 +52,25 @@ declare class Broadcaster {
 
     constructor(bot: Telegraf<any> | Telegram, options: BroadcasterOptions)
 
-    private run(chatIds: number[], jobData: MessageText | MessageId): Broadcaster
+    private broadcast(chatIds: number[], jobData: MessageText | MessageId): Broadcaster
 
-    public sendText(chatIds: number[], messageText: string, extra?: ExtraReplyMessage): Broadcaster
-    public sendMessage(chatIds: number[], fromChatId: number, messageId: number, extra?: ExtraReplyMessage): Broadcaster
+    public sendText(chatIds: number[], messageText: string, extra?: tt.ExtraEditMessage): Broadcaster
+    public sendMessage(chatIds: number[], fromChatId: number, messageId: number, extra?: tt.ExtraReplyMessage): Broadcaster
+    public sendAudio(chatIds: number[], audio: tt.InputFil, extra?: ExtraAudio): Broadcaster
+    public sendChatAction(chatIds: number[], action: tt.ChatAction): Broadcaster
+    public sendDocument(chatIds: number[], document: tt.InputFile, extra?: tt.ExtraDocument): Broadcaster
+    public sendGame(chatIds: number[], gameShortName: string, extra?: tt.ExtraGame): Broadcaster
+    public sendLocation(chatIds: number[], latitude: number, longitude: number, extra?: tt.ExtraLocation): Broadcaster
+    public sendPhoto(chatIds: number[], photo: tt.InputFile, extra?: tt.ExtraPhoto): Broadcaster
+    public sendMediaGroup(chatIds: number[], media: tt.MessageMedia[], extra?: tt.ExtraMediaGroup): Broadcaster
+    public sendPoll(chatIds: number[], question: string, options: string[], extra?: tt.ExtraPoll): Broadcaster
+    public sendQuiz(chatIds: number[], question: string, options: string[], extra?: tt.ExtraPoll): Broadcaster
+    public sendAnimation(chatIds: number[], animation: tt.InputFile, extra?: tt.ExtraAnimation): Broadcaster
+    public sendSticker(chatIds: number[], sticker: tt.InputFile, extra?: tt.ExtraSticker): Broadcaster
+    public sendVideo(chatIds: number[], video: tt.InputFile, extra?: tt.ExtraVideo): Broadcaster
+    public sendVideoNote(chatIds: number[], videoNote: tt.InputFileVideoNote, extra?: tt.ExtraVideoNote): Broadcaster
+    public sendVoice(chatIds: number[], voice: tt.InputFile, extra?: tt.ExtraVoice): Broadcaster
+    public sendDice(chatIds: number[], extra?: tt.ExtraDice): Broadcaster
 
     public reset(): Promise<[void, Job<any>[], Job<any>[], Job<any>[], Job<any>[], Job<any>[]]>
     
