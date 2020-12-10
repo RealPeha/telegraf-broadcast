@@ -1,5 +1,5 @@
 # Telegraf Broadcast
-Simple library for broadcast message to all bot users for telegraf.js using [bull](https://github.com/OptimalBits/bull) queue
+Send broadcast messages to all of your bot users for Telegraf.js based on [Bull Queue](https://github.com/OptimalBits/bull)
 
 ## Installation
 Just use npm
