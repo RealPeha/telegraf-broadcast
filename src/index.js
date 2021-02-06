@@ -99,8 +99,8 @@ class Broadcaster {
     }
 
     broadcast(chatIds, jobData) {
-        if (!Array.isArray(chatIds)) {
-            throw new Error('chatIds must be an Array of chat/user ids')
+        if (!Array.isArray(chatIds) || !('forEach' in chatIds)) {
+            throw new Error('chatIds must be an Array or Array-like of chat/user/channel ids')
         }
 
         this.usersProcessed = 0
