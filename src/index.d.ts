@@ -1,6 +1,6 @@
 import { Job, EventCallback, CompletedEventCallback, FailedEventCallback, Queue, QueueOptions, JobOptions, ProcessCallbackFunction } from 'bull'
 import * as tt from 'telegraf/typings/telegram-types'
-import { Telegraf, Telegram } from 'telegraf/typings/index'
+import { Telegraf, Telegram, Middleware, Context } from 'telegraf/typings/index'
 
 export = Broadcaster
 
@@ -97,6 +97,8 @@ declare class Broadcaster {
     public failed(formatJob?: boolean): Promise<Job<any>> | Promise<FormatterFailedJob<any>>
 
     public status(): Promise<BroadcasterStatus>
+
+    public middleware(): Middleware<Context>
 
     static formatFailedJob(job: Job<any>): FormatterFailedJob<any>
 }
