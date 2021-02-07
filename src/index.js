@@ -61,8 +61,12 @@ class Broadcaster {
         this.usersProcessed = 0
         this.usersAmount = 0
 
-        this.queue = new Queue(this.options.queueName, this.options.bullQueueOptions)
+        this.queue = new Queue(this.queueName, this.options.bullQueueOptions)
         this.queue.process(this.options.processes, this.processor)
+    }
+
+    get queueName() {
+        return this.options.queueName
     }
 
     processor = (job, done) => {
