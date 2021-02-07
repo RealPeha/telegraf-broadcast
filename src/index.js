@@ -349,6 +349,12 @@ class Broadcaster {
         return { failedCount, completedCount, activeCount, delayedCount, waitingCount }
     }
 
+    middleware() {
+        return Telegraf.tap(ctx => {
+            ctx.broadcaster = this
+        })
+    }
+
     static formatFailedJob(job) {
         const { failedReason, data } = job
 
