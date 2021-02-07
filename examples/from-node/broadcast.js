@@ -1,6 +1,5 @@
 const { Telegram } = require('telegraf')
-
-const Broadcaster = require('../../src')
+const Broadcaster = require('telegraf-broadcast')
 
 const telegram = new Telegram(process.env.TOKEN)
 const broadcaster = new Broadcaster(telegram)

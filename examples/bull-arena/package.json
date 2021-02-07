@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "bull": "^3.20.0",
-    "bull-arena": "^3.6.1",
-    "telegraf-broadcast": "^2.3.0"
-  }
-}

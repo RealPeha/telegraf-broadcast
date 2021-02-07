@@ -1,6 +1,5 @@
 const { Telegraf } = require('telegraf')
-
-const Broadcaster = require('../src')
+const Broadcaster = require('telegraf-broadcast')
 
 const bot = new Telegraf(process.env.TOKEN)
 
