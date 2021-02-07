@@ -45,6 +45,19 @@ const getApiMethodArguments = (apiMethod, jobData) => {
     return apiMethodArguments[apiMethod](jobData)
 }
 
+const isArrayLike = (item) => {
+    return (
+        Array.isArray(item) || 
+        (
+            !!item &&
+            typeof item === 'object' &&
+            'forEach' in item &&
+            typeof item.forEach === 'function' &&
+            ('length' in item || 'size' in item)
+        )
+    )
+}
+
 class Broadcaster {
     static queueName = 'tg-broadcast'
 
@@ -103,12 +116,16 @@ class Broadcaster {
     }
 
     broadcast(chatIds, jobData) {
-        if (!Array.isArray(chatIds) || !('forEach' in chatIds)) {
+        if (typeof chatIds === 'number' || typeof chatIds === 'string') {
+            chatIds = [chatIds]
+        }
+
+        if (!isArrayLike(chatIds)) {
             throw new Error('chatIds must be an Array or Array-like of chat/user/channel ids')
         }
 
         this.usersProcessed = 0
-        this.usersAmount = chatIds.length
+        this.usersAmount = chatIds.length || chatIds.size || 0
 
         chatIds.forEach(chatId => {
             this.queue.add({ chatId, ...jobData }, this.options.bullJobOptions)
@@ -339,7 +356,9 @@ class Broadcaster {
             return { data }
         }
 
-        const [code, status, message] = failedReason.split(':').map(str => str.trim())
+        const [code, status, message] = failedReason
+            .split(':')
+            .map(str => str.trim())
 
         if (!parseInt(code)) {
             return { data, failedReason }

@@ -15,13 +15,15 @@ interface MessageText {
     extra?: ExtraReplyMessage,
 }
 
+interface FormatterFailedReason {
+    code: number,
+    status: string,
+    message: string,
+}
+
 interface FormatterFailedJob<T> {
     data: T,
-    failedReason?: {
-        code: number,
-        status: string,
-        message: string,
-    }
+    failedReason?: FormatterFailedReason | string,
 }
 
 interface BroadcasterStatus {
@@ -39,6 +41,8 @@ interface BroadcasterOptions {
     queueName?: string,
 }
 
+type ChatIds = number | string | number[] | string[] | ArrayLike
+
 declare class Broadcaster {
     private usersProcessed: number
     private usersAmount: number
@@ -52,25 +56,27 @@ declare class Broadcaster {
 
     constructor(bot: Telegraf<any> | Telegram, options: BroadcasterOptions)
 
-    private broadcast(chatIds: number[], jobData: MessageText | MessageId): Broadcaster
+    private broadcast(chatIds: ChatIds, jobData: MessageText | MessageId): Broadcaster
 
-    public sendText(chatIds: number[], messageText: string, extra?: tt.ExtraEditMessage): Broadcaster
-    public sendMessage(chatIds: number[], fromChatId: number, messageId: number, extra?: tt.ExtraReplyMessage): Broadcaster
-    public sendAudio(chatIds: number[], audio: tt.InputFil, extra?: ExtraAudio): Broadcaster
-    public sendChatAction(chatIds: number[], action: tt.ChatAction): Broadcaster
-    public sendDocument(chatIds: number[], document: tt.InputFile, extra?: tt.ExtraDocument): Broadcaster
-    public sendGame(chatIds: number[], gameShortName: string, extra?: tt.ExtraGame): Broadcaster
-    public sendLocation(chatIds: number[], latitude: number, longitude: number, extra?: tt.ExtraLocation): Broadcaster
-    public sendPhoto(chatIds: number[], photo: tt.InputFile, extra?: tt.ExtraPhoto): Broadcaster
-    public sendMediaGroup(chatIds: number[], media: tt.MessageMedia[], extra?: tt.ExtraMediaGroup): Broadcaster
-    public sendPoll(chatIds: number[], question: string, options: string[], extra?: tt.ExtraPoll): Broadcaster
-    public sendQuiz(chatIds: number[], question: string, options: string[], extra?: tt.ExtraPoll): Broadcaster
-    public sendAnimation(chatIds: number[], animation: tt.InputFile, extra?: tt.ExtraAnimation): Broadcaster
-    public sendSticker(chatIds: number[], sticker: tt.InputFile, extra?: tt.ExtraSticker): Broadcaster
-    public sendVideo(chatIds: number[], video: tt.InputFile, extra?: tt.ExtraVideo): Broadcaster
-    public sendVideoNote(chatIds: number[], videoNote: tt.InputFileVideoNote, extra?: tt.ExtraVideoNote): Broadcaster
-    public sendVoice(chatIds: number[], voice: tt.InputFile, extra?: tt.ExtraVoice): Broadcaster
-    public sendDice(chatIds: number[], extra?: tt.ExtraDice): Broadcaster
+    public get queueName(): string
+
+    public sendText(chatIds: ChatIds, messageText: string, extra?: tt.ExtraEditMessage): Broadcaster
+    public sendMessage(chatIds: ChatIds, fromChatId: number, messageId: number, extra?: tt.ExtraReplyMessage): Broadcaster
+    public sendAudio(chatIds: ChatIds, audio: tt.InputFil, extra?: ExtraAudio): Broadcaster
+    public sendChatAction(chatIds: ChatIds, action: tt.ChatAction): Broadcaster
+    public sendDocument(chatIds: ChatIds, document: tt.InputFile, extra?: tt.ExtraDocument): Broadcaster
+    public sendGame(chatIds: ChatIds, gameShortName: string, extra?: tt.ExtraGame): Broadcaster
+    public sendLocation(chatIds: ChatIds, latitude: number, longitude: number, extra?: tt.ExtraLocation): Broadcaster
+    public sendPhoto(chatIds: ChatIds, photo: tt.InputFile, extra?: tt.ExtraPhoto): Broadcaster
+    public sendMediaGroup(chatIds: ChatIds, media: tt.MessageMedia[], extra?: tt.ExtraMediaGroup): Broadcaster
+    public sendPoll(chatIds: ChatIds, question: string, options: string[], extra?: tt.ExtraPoll): Broadcaster
+    public sendQuiz(chatIds: ChatIds, question: string, options: string[], extra?: tt.ExtraPoll): Broadcaster
+    public sendAnimation(chatIds: ChatIds, animation: tt.InputFile, extra?: tt.ExtraAnimation): Broadcaster
+    public sendSticker(chatIds: ChatIds, sticker: tt.InputFile, extra?: tt.ExtraSticker): Broadcaster
+    public sendVideo(chatIds: ChatIds, video: tt.InputFile, extra?: tt.ExtraVideo): Broadcaster
+    public sendVideoNote(chatIds: ChatIds, videoNote: tt.InputFileVideoNote, extra?: tt.ExtraVideoNote): Broadcaster
+    public sendVoice(chatIds: ChatIds, voice: tt.InputFile, extra?: tt.ExtraVoice): Broadcaster
+    public sendDice(chatIds: ChatIds, extra?: tt.ExtraDice): Broadcaster
 
     public reset(): Promise<[void, Job<any>[], Job<any>[], Job<any>[], Job<any>[], Job<any>[]]>
     
