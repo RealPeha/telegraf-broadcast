@@ -126,12 +126,13 @@ class Broadcaster {
 
         this.usersProcessed = 0
         this.usersAmount = chatIds.length || chatIds.size || 0
+        let promises = []
 
         chatIds.forEach(chatId => {
-            this.queue.add({ chatId, ...jobData }, this.options.bullJobOptions)
+            promises.push(this.queue.add({ chatId, ...jobData }, this.options.bullJobOptions))
         })
 
-        return this
+        return Promise.all(promises)
     }
 
     sendMessage(chatIds, fromChatId, messageId, extra) {
