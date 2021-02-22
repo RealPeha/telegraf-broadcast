@@ -22,7 +22,9 @@
     "src/*.ts"
   ],
   "dependencies": {
-    "bull": "^3.20.0",
+    "bull": "^3.20.0"
+  },
+  "peerDependencies": {
     "telegraf": "^3.38.0"
   },
   "keywords": [
