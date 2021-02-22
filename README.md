@@ -46,7 +46,7 @@ broadcaster.sendText(userIds, '42')
 ### Send plain text
 
 ```javascript
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 const Broadcaster = require('telegraf-broadcast')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
