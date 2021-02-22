@@ -1,5 +1,5 @@
 # Telegraf Message Broadcast
-Send broadcast messages to all of your bot users/groups/channels for [Telegraf.js v3.38.0](https://github.com/telegraf/telegraf/tree/3.38.0) based on [Bull Queue](https://github.com/OptimalBits/bull)
+Send broadcast messages to all of your bot users/groups/channels for [Telegraf.js](https://github.com/telegraf/telegraf/) based on [Bull Queue](https://github.com/OptimalBits/bull)
 
 ## Installation
 Just use npm
